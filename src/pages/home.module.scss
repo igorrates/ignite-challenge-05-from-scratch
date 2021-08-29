@@ -1,1 +1,66 @@
-// TODO
+
+
+.morePosts:hover {
+  filter: brightness(0.8);
+}
+
+.morePosts {
+  display: block;
+  margin-top: 4rem;
+  color: var(--pink);
+  font-size: 1.125rem;
+  line-height: 1.375rem;
+  font-weight: bold;
+
+  transition: filter 0.2s;
+}
+
+.posts {
+  max-width: 700px;
+  margin: 4rem 0 0;
+
+  a {
+    display: block;
+    & + a {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+    }
+
+    strong {
+      display: block;
+      font-size: 1.75rem;
+      margin-top: 1rem;
+      line-height: 2rem;
+      color: var(--heading);
+
+      transition: color 0.2s;
+    }
+
+    &:hover strong {
+      color: var(--pink);
+    }
+
+    p {
+      color: var(--body);
+      margin-top: 0.5rem;
+      line-height: 1.375rem;
+    }
+
+    div {
+      margin: 1.5rem 0;
+      font-size: 0.875rem;
+      line-height: 1.05rem;
+      display: flex;
+      align-items: center;
+      color: var(--info);
+
+      span {
+        margin-left: 1.625rem;
+      }
+    }
+
+    &:hover strong {
+      color: var(--pink);
+    }
+  }
+}
