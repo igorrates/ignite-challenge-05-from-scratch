@@ -50,7 +50,8 @@ export default function Post(props: PostProps) {
     const postContent = props?.post?.data?.content;
 
     var words = postContent.reduce((count, content) => {
-      count += RichText.asText(content.body).match(/\S+/g).length
+      count += content.heading.match(/\S+/g).length;
+      count += RichText.asText(content.body).match(/\S+/g).length;
       return count;
     }, 0)
 
