@@ -42,7 +42,20 @@ export default function Post(props: PostProps) {
   const router = useRouter()
   const [readingTime, setReadingTime] = useState(calculateReadingTime);
   function calculateReadingTime() {
-    return '4 min'
+
+    /** Regex to count workds
+     * value.match(/\S+/g).length
+    */
+
+    const postContent = props?.post?.data?.content;
+
+    var words = postContent.reduce((count, content) => {
+      count += RichText.asText(content.body).match(/\S+/g).length
+      return count;
+    }, 0)
+
+    const mins = Math.ceil(words / 200)
+    return `${mins} ${mins > 1 ? 'mins' : 'min'}`
   }
 
   // If the page is not yet generated, this will be displayed
