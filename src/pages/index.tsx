@@ -47,9 +47,10 @@ export default function Home(props: HomeProps) {
 
   function handleNextPage() {
 
-    fetch(props.postsPagination.next_page).then((response) => {
+     fetch(posts.next_page).then((response) => {
       return response.json()
     }).then(data => {
+
       setPosts({
         next_page: data.next_page,
         results: [...posts.results, ...data.results]
@@ -106,7 +107,7 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       postsPagination: postsResponse
-    }
+    },
+    redirect: 60 * 30
   }
-
 };
