@@ -40,7 +40,7 @@ export default function Post(props: PostProps) {
 
 
   const router = useRouter()
-  const [readingTime, setReadingTime] = useState(calculateReadingTime);
+  const [readingTime] = useState(calculateReadingTime);
   function calculateReadingTime() {
 
     /** Regex to count workds
