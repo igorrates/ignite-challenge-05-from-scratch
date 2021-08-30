@@ -13,6 +13,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { RichText } from 'prismic-dom';
 import Prismic from '@prismicio/client';
+import Comments from '../../components/Comments'
+import Link from 'next/link'
+import ExitPreviewButton from '../../components/ExitPreviewButton';
 
 interface Post {
   first_publication_date: string | null;
@@ -33,6 +36,7 @@ interface Post {
 }
 
 interface PostProps {
+  preview: boolean;
   post: Post;
 }
 
@@ -74,6 +78,10 @@ export default function Post(props: PostProps) {
         <img src={props.post?.data?.banner?.url} alt={props.post?.data?.banner?.alt} />
       </section>
 
+      {props.preview && (
+        <ExitPreviewButton />
+      )}
+
       <article className={`${commonStyles.container} ${styles.post}`}>
         <h1>{props.post?.data?.title}</h1>
         <section>
@@ -96,9 +104,14 @@ export default function Post(props: PostProps) {
               }} />
           </main>
         ))}
-
-
       </article>
+
+      <section>
+        <div>Before</div>
+        <div>after</div>
+
+        <Comments />
+      </section>
     </>
   )
 }
@@ -110,7 +123,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
     {
       fetch: ['post.title', 'post.subtitle', 'post.author'],
       pageSize: 30,
-      orderings: '[document.first_publication_date]'
+      orderings: '[document.first_publication_date]',
     },
   );
 
@@ -127,15 +140,19 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 };
 
-export const getStaticProps: GetStaticProps = async context => {
+export const getStaticProps: GetStaticProps = async ({ params, preview = false, previewData }) => {
 
-  const { slug } = context.params;
+  const { slug } = params;
+  const ref = previewData ? previewData.ref : null
 
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('post', String(slug), {});
+  const response = await prismic.getByUID('post', String(slug), {
+    ref: previewData?.ref ?? null
+  });
 
   return {
     props: {
+      preview,
       post: response
     },
     redirect: 60 * 30 // 30 mins
