@@ -19,6 +19,8 @@ import ExitPreviewButton from '../../components/ExitPreviewButton';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
+  uid: string;
   data: {
     title: string;
     banner: {
@@ -38,6 +40,8 @@ interface Post {
 interface PostProps {
   preview: boolean;
   post: Post;
+  prevPost?: Post | null;
+  nextPost?: Post | null;
 }
 
 export default function Post(props: PostProps) {
@@ -69,6 +73,8 @@ export default function Post(props: PostProps) {
     return <div>Carregando...</div>
   }
 
+  console.log(props)
+
   return (
     <>
       <Head>
@@ -93,6 +99,17 @@ export default function Post(props: PostProps) {
             }) : ""}</time>
           <span><FiUser /> {props.post?.data?.author}</span>
           <span><FiClock /> {readingTime} </span>
+          {props.post?.last_publication_date && (
+            <>
+              <br />
+              <time> *editado em {format(
+                new Date(props.post?.last_publication_date),
+                'dd MMM yyyy, H:mm',
+                {
+                  locale: ptBR,
+                })}</time>
+            </>
+          )}
         </section>
 
         {props.post?.data?.content.map(content => (
@@ -104,14 +121,34 @@ export default function Post(props: PostProps) {
               }} />
           </main>
         ))}
+
       </article>
+      <div className={styles.footerContent}>
+        <footer>
+          <aside>
+            {props.prevPost && (
+              <span className={styles.navPrevious}>{props.prevPost.data?.title}</span>
+            )}
+            {props.nextPost && (
+              <span className={styles.navNext}>{props.nextPost.data?.title}</span>
+            )}
+          </aside>
+          <aside>
+            {props.prevPost && (
+              <Link  href={`/post/${props.prevPost.uid}`}>
+                <a className={styles.navPrevious}>Post Anterior</a>
+              </Link>
+            )}
+            {props.nextPost && (
+              <Link href={`/post/${props.nextPost?.uid}`}>
+                <a className={styles.navNext}>Próximo Post</a>
+              </Link>
+            )}
+          </aside>
 
-      <section>
-        <div>Before</div>
-        <div>after</div>
-
-        <Comments />
-      </section>
+          <Comments />
+        </footer>
+      </div>
     </>
   )
 }
@@ -143,17 +180,38 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params, preview = false, previewData }) => {
 
   const { slug } = params;
-  const ref = previewData ? previewData.ref : null
 
   const prismic = getPrismicClient();
   const response = await prismic.getByUID('post', String(slug), {
     ref: previewData?.ref ?? null
   });
 
+  const prevPost = (await prismic.query(
+    Prismic.predicates.at('document.type', 'post'),
+    {
+      pageSize: 1,
+      after: `${response.id}`,
+      orderings: '[document.first_publication_date desc]',
+      fetch: ['post.title'],
+    }))?.results[0];
+
+  const nextPost = (await prismic.query(
+    Prismic.predicates.at('document.type', 'post'),
+    {
+      pageSize: 1,
+      after: `${response.id}`,
+      orderings: '[document.first_publication_date]',
+      fetch: ['post.title'],
+    }))?.results[0];
+
+
+
   return {
     props: {
       preview,
-      post: response
+      post: response,
+      prevPost: prevPost == undefined ? null : prevPost,
+      nextPost: nextPost == undefined ? null : nextPost,
     },
     redirect: 60 * 30 // 30 mins
   }
